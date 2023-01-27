@@ -1,1 +1,1 @@
-asterisk-ami-adapter
+# @2people-it/asterisk-ami-adapter
