@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.2...v1.0.3) (2023-01-28)
+
+
+### Bug Fixes
+
+* package.json name ([af9f70d](https://github.com/2people-IT/asterisk-ami-adapter/commit/af9f70d5a36cc1631c448dd8ed70028454c9d3c9))
+
 ## [1.0.2](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.1...v1.0.2) (2023-01-28)
 
 
