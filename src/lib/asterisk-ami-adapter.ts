@@ -105,41 +105,25 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		}
 	}
 
-	#send(data: Types.TAmiMessageIn, callback?: Types.TCallBack) {
-		if (!data.ActionID) data.ActionID = this.#getFormatedUuid();
+	#generateSocketData(data: Types.TAmiMessageToSocket): string {
+		let str = "";
 
-		const actionID = data.ActionID;
+		for (const i in data) {
+			const value = data[i];
 
-		if (this.#socket?.writable) {
-			this.#debug("----- SEND ----");
-			const payload = this.#generateSocketData(data);
+			if (Array.isArray(value)) {
+				const strings = value.map((e) => i + ": " + e);
 
-			this.#debug(payload);
-
-			if (callback) {
-				this.#callbacksMap.set(actionID, {
-					callback,
-					timer: setTimeout(() => {
-						if (this.#callbacksMap.has(actionID)) {
-							callback(new Error("Ami server did not get answer"), null);
-							this.#callbacksMap.delete(actionID);
-						}
-					}, 10000),
-				});
+				str = str.concat(strings.join(this.#NEW_LINE)) + this.#NEW_LINE;
+			} else {
+				str += (i + ": " + value + this.#NEW_LINE);
 			}
-
-			this.#socket.write(
-				payload,
-				this.#encoding,
-				// cb,
-			);
-
-			this.#debug("----- SENDED ----");
-		} else {
-			this.#debug("cannot write to Asterisk Socket");
-			this.emit("ami_socket_unwritable");
 		}
+
+		return str + this.#NEW_LINE;
 	}
+
+	#getFormatedUuid = randomUUID;
 
 	#processData(data: string) {
 		if (data.substring(0, 21) === "Asterisk Call Manager") {
@@ -196,24 +180,40 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		return result;
 	}
 
-	#getFormatedUuid = randomUUID;
+	#send(data: Types.TAmiMessageIn, callback?: Types.TCallBack) {
+		if (!data.ActionID) data.ActionID = this.#getFormatedUuid();
 
-	#generateSocketData(data: Types.TAmiMessageToSocket): string {
-		let str = "";
+		const actionID = data.ActionID;
 
-		for (const i in data) {
-			const value = data[i];
+		if (this.#socket?.writable) {
+			this.#debug("----- SEND ----");
+			const payload = this.#generateSocketData(data);
 
-			if (Array.isArray(value)) {
-				const strings = value.map((e) => i + ": " + e);
+			this.#debug(payload);
 
-				str = str.concat(strings.join(this.#NEW_LINE)) + this.#NEW_LINE;
-			} else {
-				str += (i + ": " + value + this.#NEW_LINE);
+			if (callback) {
+				this.#callbacksMap.set(actionID, {
+					callback,
+					timer: setTimeout(() => {
+						if (this.#callbacksMap.has(actionID)) {
+							callback(new Error("Ami server did not get answer"), null);
+							this.#callbacksMap.delete(actionID);
+						}
+					}, 10000),
+				});
 			}
-		}
 
-		return str + this.#NEW_LINE;
+			this.#socket.write(
+				payload,
+				this.#encoding,
+				// cb,
+			);
+
+			this.#debug("----- SENDED ----");
+		} else {
+			this.#debug("cannot write to Asterisk Socket");
+			this.emit("ami_socket_unwritable");
+		}
 	}
 
 	connect(): void {
