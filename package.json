@@ -1,5 +1,5 @@
 {
-  "name": "@2people-it/asterisk-ami-adapter",
+  "name": "@2people.it/asterisk-ami-adapter",
   "version": "1.0.2",
   "description": "Adapter to connect to ami interface",
   "publishConfig": {

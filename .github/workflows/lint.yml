@@ -1,4 +1,4 @@
-name: Lint & Test Runner
+name: Lint Runner
 on:
   push:
     branches: [ master ]
