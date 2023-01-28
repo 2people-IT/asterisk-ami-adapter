@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.1...v1.0.2) (2023-01-28)
+
+
+### Bug Fixes
+
+* expand readme ([f0c8ff5](https://github.com/2people-IT/asterisk-ami-adapter/commit/f0c8ff5ba00e6adc747cc4cbdb700885ad89d83f))
+
 ## [1.0.1](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.0...v1.0.1) (2023-01-28)
 
 
