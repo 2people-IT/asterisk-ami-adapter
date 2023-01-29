@@ -12,15 +12,15 @@ The ``connect`` function establishes the connection, while the ```disconnect``` 
 
 In addition to these functions, the class also emits several socket events that allow you to monitor the state of the connection and take appropriate actions in response to changes. The socket events are:
 ```
-ami_connect
-ami_data
-ami_login
-ami_socket_drain
-ami_socket_error
-ami_socket_timeout
-ami_socket_end
-ami_socket_close
-ami_socket_unwritable
+ami_connect // throw system socket event
+ami_data // arise after incoming any message from ami
+ami_login // arise after incoming successfull login message from ami
+ami_socket_drain // throw  system socket event
+ami_socket_error // throw system socket event
+ami_socket_timeout // throw system socket event
+ami_socket_end // throw system socket event
+ami_socket_close // throw system socket event
+ami_socket_unwritable // throw system socket event
 ```
 With these events, you'll be able to handle various connection-related events, such as a successful login or a socket error.
 
@@ -32,3 +32,47 @@ Whether you're looking to automate routine tasks, build custom applications, or 
 
 * **Typescript**
 * **Zero dependiences**
+
+## Getting started example
+
+```
+import { AsteriskAmiAdapter } from '@2people.it/asterisk-ami-adapter';
+
+const adapter = new AsteriskAmiAdapter({
+  host: '127.0.0.1',
+  password: "password",
+  port: 5038,
+  username: "username",
+});
+
+adapter.connect();
+
+adapter.on('ami_connect', () => {
+  console.log('Connected to AMI');
+});
+
+adapter.on('ami_login', () => {
+  console.log('Login successful');
+
+  adapter.sendAction({
+    Action: 'CoreShowChannels'
+  });
+
+  // if u need pass any variables u need pass it to Array
+  adapter.sendAction({
+    Action: "Status",
+    Variables: [
+      "VAR_1",
+      "VAR_2",
+    ],
+});
+
+adapter.on('ami_data', (data) => {
+  console.log(data);
+});
+
+adapter.on('ami_socket_error', (error) => {
+  console.error(error);
+});
+
+```
