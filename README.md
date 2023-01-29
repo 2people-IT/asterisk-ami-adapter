@@ -58,13 +58,14 @@ adapter.on('ami_login', () => {
     Action: 'CoreShowChannels'
   });
 
-  // if u need pass any variables u need pass it to Array
+  // if u need pass any variables, pass it to Array
   adapter.sendAction({
     Action: "Status",
     Variables: [
       "VAR_1",
       "VAR_2",
     ],
+  });
 });
 
 adapter.on('ami_data', (data) => {
