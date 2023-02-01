@@ -28,6 +28,10 @@ One of the advantages of this repository is that it does not have any external d
 
 Whether you're looking to automate routine tasks, build custom applications, or integrate with other systems, asterisk-ami-adapter is the right tool for you. With its simple API and well-documented source code, you'll be able to get started quickly and take advantage of the full power of Asterisk AMI. So, check out the repository today, and take your Asterisk integration to the next level!"
 
+## Auto-generated documentation
+
+https://2people-it.github.io/asterisk-ami-adapter
+
 ## Features
 
 * **Typescript**
