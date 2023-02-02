@@ -1,5 +1,9 @@
 # @2people.it/asterisk-ami-adapter
 
+![release](https://github.com/2people-IT/asterisk-ami-adapter/actions/workflows/release.yml/badge.svg)
+![lint-and-test](https://github.com/2people-IT/asterisk-ami-adapter/actions/workflows/lint-and-test.yml/badge.svg)
+![jekyll-gh-pages](https://github.com/2people-IT/asterisk-ami-adapter/actions/workflows/jekyll-gh-pages.yml/badge.svg)
+
 It is a Node.js based solution for connecting to the Asterisk Manager Interface (AMI) via socket. AMI is a protocol for controlling, monitoring, and configuring an Asterisk PBX. This repository provides a flexible and efficient way to interact with the AMI, enabling developers to automate tasks, gather information about the system and users, and create custom applications for managing Asterisk.
 
 To install the package, simply run the command

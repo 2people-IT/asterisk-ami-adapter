@@ -2,7 +2,7 @@ name: Make release
 
 on:
   workflow_run:
-    workflows: ["Lint & Test Runner"]
+    workflows: ["Lint & Test"]
     branches: [ master ]
     types:
       - completed
