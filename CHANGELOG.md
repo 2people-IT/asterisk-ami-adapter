@@ -1,3 +1,10 @@
+## [1.0.8](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.7...v1.0.8) (2023-02-02)
+
+
+### Bug Fixes
+
+* pass private methods for public access ([7ddde70](https://github.com/2people-IT/asterisk-ami-adapter/commit/7ddde70a179df9e8737380c66991e55d6d75d5cd))
+
 ## [1.0.7](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.6...v1.0.7) (2023-02-01)
 
 
