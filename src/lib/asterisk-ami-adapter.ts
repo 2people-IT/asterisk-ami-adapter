@@ -320,6 +320,10 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		}
 	}
 
+	getGenerateSocketData = this.#generateSocketData;
+
+	getProcessData = this.#processData;
+
 	sendAction(data: Types.TAmiMessageIn, callback: Types.TCallBack) {
 		if (!this.#isReady) {
 			return this.#logger.warn("Connection is not established");
