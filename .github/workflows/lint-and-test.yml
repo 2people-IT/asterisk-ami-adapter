@@ -1,4 +1,5 @@
-name: Lint Runner
+name: Lint & Test Runner
+
 on:
   push:
     branches: [ master ]
@@ -18,3 +19,6 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+      - name: Run Tests
+        run: npm test
