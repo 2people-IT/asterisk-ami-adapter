@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.9...v1.1.0) (2023-02-08)
+
+
+### Features
+
+* expand type of data in sendAction method ([b58797e](https://github.com/2people-IT/asterisk-ami-adapter/commit/b58797e7ef9a792bbea0454f2fc8809a19534ff5))
+
 ## [1.0.9](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.8...v1.0.9) (2023-02-02)
 
 
