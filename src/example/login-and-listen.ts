@@ -31,6 +31,14 @@ asteriskAmiConnector.connect();
 
 asteriskAmiConnector.on("ami_login", (data: Types.TAmiEvent) => {
 	console.log("ami_login", data);
+
+	asteriskAmiConnector.sendAction({
+		Action: "TEST",
+	}, (error, data) => {
+		if (error) return console.log(error);
+
+		console.log(data);
+	});
 });
 
 asteriskAmiConnector.on("ami_data", (data: Types.TAmiEvent) => {
