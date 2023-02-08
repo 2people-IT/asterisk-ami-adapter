@@ -180,7 +180,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		return result;
 	}
 
-	#send(data: Types.TAmiMessageIn, callback?: Types.TCallBack) {
+	#send(data: Types.TAmiMessageIn & Types.TAmiMessageToSocket, callback?: Types.TCallBack) {
 		if (!data.ActionID) data.ActionID = this.#getFormatedUuid();
 
 		const actionID = data.ActionID;
@@ -324,7 +324,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 
 	getProcessData = this.#processData;
 
-	sendAction(data: Types.TAmiMessageIn, callback: Types.TCallBack) {
+	sendAction(data: Types.TAmiMessageIn & Types.TAmiMessageToSocket, callback: Types.TCallBack) {
 		if (!this.#isReady) {
 			return this.#logger.warn("Connection is not established");
 		}
