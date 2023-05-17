@@ -69,10 +69,7 @@ adapter.on('ami_login', () => {
   // if u need pass any variables, pass it to Array
   adapter.sendAction({
     Action: "Status",
-    Variables: [
-      "VAR_1",
-      "VAR_2",
-    ],
+    Variables: ["VAR_1", "VAR_2"],
   });
 });
 
