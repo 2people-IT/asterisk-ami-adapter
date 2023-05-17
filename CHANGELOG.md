@@ -1,3 +1,13 @@
+# [2.0.0](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.1.0...v2.0.0) (2023-05-17)
+
+
+* fix!: update AsteriskAmiAdapter constructor args ([908c301](https://github.com/2people-IT/asterisk-ami-adapter/commit/908c301496bb0ac66fb1e34ecc92fb74f846519e))
+
+
+### BREAKING CHANGES
+
+* update AsteriskAmiAdapter constructor args
+
 # [1.1.0](https://github.com/2people-IT/asterisk-ami-adapter/compare/v1.0.9...v1.1.0) (2023-02-08)
 
 
