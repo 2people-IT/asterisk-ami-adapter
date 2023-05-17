@@ -9,6 +9,11 @@ It is a Node.js based solution for connecting to the Asterisk Manager Interface 
 To install the package, simply run the command
 ```
 npm install @2people.it/asterisk-ami-adapter
+
+or for powershell
+
+npm install '@2people.it/asterisk-ami-adapter'
+
 ```
 
 The main class of the repository, ```AsteriskAmiAdapter```, extends from ```EventEmitter``` and provides a simple and straightforward way to connect to the AMI.
@@ -47,9 +52,13 @@ https://2people-it.github.io/asterisk-ami-adapter
 import { AsteriskAmiAdapter } from '@2people.it/asterisk-ami-adapter';
 
 const adapter = new AsteriskAmiAdapter({
+  encoding: "ascii",
+  events: true,
   host: '127.0.0.1',
   password: "password",
   port: 5038,
+  reconnect: true,
+  reconnectDelay: 5000,
   username: "username",
 });
 
