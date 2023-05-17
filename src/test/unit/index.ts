@@ -3,7 +3,16 @@ import test from "node:test";
 
 import { AsteriskAmiAdapter } from "../..";
 
-const amiAdapter = new AsteriskAmiAdapter();
+const amiAdapter = new AsteriskAmiAdapter({
+	encoding: "ascii",
+	events: false,
+	host: "localhost",
+	password: "password",
+	port: 5038,
+	reconnect: false,
+	reconnectDelay: 3000,
+	username: "username",
+});
 
 test("Main checks", async (t) => {
 	await t.test("prepare data event from ami", async () => {

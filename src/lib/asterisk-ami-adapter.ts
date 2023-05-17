@@ -1,94 +1,89 @@
-import fs, { WriteStream } from "node:fs";
-import net, { Socket } from "node:net";
 import EventEmitter from "node:events";
-import { randomUUID } from "node:crypto";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import net from "node:net";
 import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 
 import * as Types from "../types";
 
 export class AsteriskAmiAdapter extends EventEmitter {
-	#net = net;
-	#buffer = "";
 	#NEW_LINE = "\r\n";
 	#NEW_LINE_DOUBLE = this.#NEW_LINE + this.#NEW_LINE;
-	#socket?: Socket;
-	#port: number;
-	#host: string;
-	#username: string;
-	#password: string;
-	#isDebugEnabled: boolean;
-	#isWriteToFileEnabled: boolean;
-	#writeStream?: WriteStream;
-	#reconnect: boolean;
-	#reconnectDelay: number;
-	#identifier?: string;
-	#encoding: BufferEncoding = "ascii";
-	#logger: Console;
-	#events: boolean;
-	#isReady: boolean;
+	#asteriskOptions: Types.TAsteriskOptions;
+	#buffer = "";
 	#callbacksMap: Map<string, { callback: Types.TCallBack; timer: NodeJS.Timeout; }> = new Map();
+	#callbackTTL: number;
+	#debugOptions?: Types.TDebugOptions & { logger: Console; writeStream?: fs.WriteStream; };
+	#isReady: boolean;
+	#net = net;
+	#socket?: net.Socket;
 
-	constructor(params = {
-		host: "localhost",
-		password: "password",
-		port: 5038,
-		username: "username",
-	}, options: Types.TOptions = {
-		debug: false,
-		encoding: "ascii",
-		events: false,
-		identifier: undefined,
-		logger: undefined,
-		reconnect: false,
-		reconnectDelay: 3000,
-		writeToFile: false,
-	}) {
+	/**
+	 * Creates a new AsteriskAmiAdapter instance.
+	 *
+	 * @param {Types.TAsteriskOptions} [asteriskOptions] - Options for the Asterisk connection.
+	 * @param {Types.TDebugOptions} [debugOptions] - Options for debugging.
+	 */
+	constructor(
+		asteriskOptions: Types.TAsteriskOptions,
+		debugOptions?: Types.TDebugOptions,
+	) {
 		super();
 
-		this.#port = params.port;
-		this.#host = params.host;
-		this.#username = params.username;
-		this.#password = params.password;
+		this.#asteriskOptions = { ...asteriskOptions };
+		this.#callbackTTL = asteriskOptions.callBackTTL || 10000;
+		if (this.#callbackTTL <= 0) throw new Error("Invalid asteriskOptions.callBackTTL");
 
-		this.#isDebugEnabled = options.debug;
-		this.#isWriteToFileEnabled = options.writeToFile;
-		this.#writeStream = this.#isWriteToFileEnabled
-			? fs.createWriteStream("temp.log", { flags: "a" })
-			: this.#writeStream;
-		this.#reconnect = options.reconnect;
-		this.#reconnectDelay = options.reconnectDelay;
-		this.#identifier = options.identifier;
-		this.#encoding = options.encoding || this.#encoding;
-		this.#logger = console;
-		this.#events = options.events;
+		this.#debugOptions = debugOptions?.isDebugEnabled ? {
+			filePath: debugOptions.filePath,
+			isDebugEnabled: debugOptions.isDebugEnabled,
+			isWriteToFileEnabled: debugOptions.isWriteToFileEnabled,
+			logger: console,
+			writeStream: debugOptions.isWriteToFileEnabled
+				? fs.createWriteStream(debugOptions.filePath ?? "temp.log", { flags: "a" })
+				: undefined,
+		} : undefined;
 
 		this.#isReady = false;
 	}
 
 	#authCreds = (): Types.TAmiMessageIn => ({
 		Action: "login",
-		Events: this.#events ? "on" : "off",
-		Secret: this.#password,
-		Username: this.#username,
+		Events: this.#asteriskOptions.events
+			? "on"
+			: "off",
+		Secret: this.#asteriskOptions.password,
+		Username: this.#asteriskOptions.username,
 	});
 
-	#debug(data: string | string[] | object): void {
-		if (this.#isDebugEnabled) {
-			const debugged = [];
+	#debug(
+		data: string | string[] | object,
+		level: "ERROR" | "INFO" | "WARN",
+	): void {
+		if (!this.#debugOptions) return;
 
-			if (typeof data === "object") {
-				debugged.push(JSON.stringify(data));
+		const debugged = [];
+
+		if (typeof data === "object") {
+			debugged.push(JSON.stringify(data));
+		} else {
+			if (Array.isArray(data)) {
+				debugged.push(...data);
 			} else {
-				if (Array.isArray(data)) {
-					debugged.push(...data);
-				} else {
-					debugged.push(data);
-				}
+				debugged.push(data);
 			}
-
-			this.#logger.log(debugged.join(this.#NEW_LINE));
 		}
-		if (this.#isWriteToFileEnabled && this.#writeStream) {
+
+		const logMethods: { [k: string]: "error" | "log" | "warn"; } = {
+			ERROR: "error",
+			INFO: "log",
+			WARN: "warn",
+		};
+
+		const method = logMethods[level];
+
+		this.#debugOptions.logger[method](`[${Date.now()}]: [${level}] ` + debugged.join(this.#NEW_LINE));
+		if (this.#debugOptions.isWriteToFileEnabled && this.#debugOptions.writeStream) {
 			const debugged = [];
 
 			if (typeof data === "object") {
@@ -101,7 +96,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 				}
 			}
 
-			this.#writeStream.write(debugged.join(this.#NEW_LINE) + this.#NEW_LINE, "utf-8");
+			this.#debugOptions.writeStream.write(`[${Date.now()}]: [${level}] ` + debugged.join(this.#NEW_LINE) + this.#NEW_LINE, "utf-8");
 		}
 	}
 
@@ -123,7 +118,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		return str + this.#NEW_LINE;
 	}
 
-	#getFormatedUuid = randomUUID;
+	#getFormatedUuid = crypto.randomUUID;
 
 	#processData(data: string) {
 		if (data.substring(0, 21) === "Asterisk Call Manager") {
@@ -172,8 +167,6 @@ export class AsteriskAmiAdapter extends EventEmitter {
 				return p;
 			}, {});
 
-			if (this.#identifier) event.Identifier = this.#identifier;
-
 			result.push(event);
 		}
 
@@ -186,10 +179,10 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		const actionID = data.ActionID;
 
 		if (this.#socket?.writable) {
-			this.#debug("----- SEND ----");
+			this.#debug("----- START SEND ----", "INFO");
 			const payload = this.#generateSocketData(data);
 
-			this.#debug(payload);
+			this.#debug(payload, "INFO");
 
 			if (callback) {
 				this.#callbacksMap.set(actionID, {
@@ -199,29 +192,30 @@ export class AsteriskAmiAdapter extends EventEmitter {
 							callback(new Error("Ami server did not get answer"), null);
 							this.#callbacksMap.delete(actionID);
 						}
-					}, 10000),
+					}, this.#callbackTTL),
 				});
 			}
 
 			this.#socket.write(
 				payload,
-				this.#encoding,
+				this.#asteriskOptions.encoding,
 				// cb,
 			);
 
-			this.#debug("----- SENDED ----");
+			this.#debug("----- END SEND ----", "INFO");
 		} else {
-			this.#debug("cannot write to Asterisk Socket");
+			this.#debug("cannot write to Asterisk Socket", "ERROR");
 			this.emit("ami_socket_unwritable");
 		}
 	}
 
 	connect(): void {
-		this.#debug(`Connecting to Asterisk host ${this.#host}:${this.#port}`);
+		this.#debug(`Connecting to Asterisk host ${this.#asteriskOptions.host}:${this.#asteriskOptions.port}`, "INFO");
 
-		const socket = this.#net.createConnection(this.#port, this.#host);
+		const socket = this.#net
+			.createConnection(this.#asteriskOptions.port, this.#asteriskOptions.host);
 
-		socket.setEncoding(this.#encoding);
+		socket.setEncoding(this.#asteriskOptions.encoding);
 		socket.setKeepAlive(true, 500);
 
 		socket.on("connect", () => {
@@ -240,10 +234,10 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		});
 
 		socket.on("data", (data: string) => {
-			this.#debug("----- NEW DATA ----");
+			this.#debug("----- NEW DATA ----", "INFO");
 			const allEvents = this.#processData(data);
 
-			this.#debug(allEvents);
+			this.#debug(allEvents, "INFO");
 
 			for (const event of allEvents) {
 				if (event.ActionID) {
@@ -263,40 +257,40 @@ export class AsteriskAmiAdapter extends EventEmitter {
 
 				this.emit("ami_data", event);
 			}
-			this.#debug("----- END DATA ----");
+			this.#debug("----- END DATA ----", "INFO");
 		});
 
 		socket.on("drain", () => {
-			this.#debug("DRAIN. Asterisk Socket connection drained");
+			this.#debug("DRAIN. Asterisk Socket connection drained", "WARN");
 			this.emit("ami_socket_drain");
 		});
 
 		socket.on("error", (error: Error) => {
 			if (error) {
-				this.#debug("ERROR. Asterisk Socket connection error, error was: " + error);
+				this.#debug("ERROR. Asterisk Socket connection error, error was: " + error, "ERROR");
 			}
 			this.emit("ami_socket_error", error);
 		});
 
 		socket.on("timeout", () => {
-			this.#debug("TIMEOUT. Asterisk Socket connection has timed out");
+			this.#debug("TIMEOUT. Asterisk Socket connection has timed out", "WARN");
 			this.emit("ami_socket_timeout");
 		});
 
 		socket.on("end", () => {
-			this.#debug("END. Asterisk Socket connection ran end event");
+			this.#debug("END. Asterisk Socket connection ran end event", "INFO");
 			this.emit("ami_socket_end");
 		});
 
-		socket.on("close", async (isHaveError: boolean) => {
-			this.#debug("CLOSE. Asterisk Socket connection closed, error status - " + isHaveError);
-			this.emit("ami_socket_close", isHaveError);
+		socket.on("close", async (hadError: boolean) => {
+			this.#debug("CLOSE. Asterisk Socket connection closed, hadError - " + hadError, "WARN");
+			this.emit("ami_socket_close", hadError);
 
 			this.#isReady = false;
 
-			if (this.#reconnect) {
-				this.#debug("Reconnecting to Asterisk after " + this.#reconnectDelay + "ms");
-				await setTimeoutPromise(this.#reconnectDelay);
+			if (this.#asteriskOptions.reconnect) {
+				this.#debug("Reconnecting to Asterisk after " + this.#asteriskOptions.reconnectDelay + "ms", "INFO");
+				await setTimeoutPromise(this.#asteriskOptions.reconnectDelay);
 
 				this.connect();
 			}
@@ -307,15 +301,15 @@ export class AsteriskAmiAdapter extends EventEmitter {
 
 	disconnect(): void {
 		if (this.#socket) {
-			this.#debug("disconnect");
-			this.#reconnect = false;
+			this.#debug("disconnect", "INFO");
+			this.#asteriskOptions.reconnect = false;
 			this.#socket.end(this.#generateSocketData({ Action: "Logoff" }));
 		}
 	}
 
 	destroy(): void {
 		if (this.#socket) {
-			this.#debug("destroy");
+			this.#debug("destroy", "INFO");
 			this.#socket.destroy();
 		}
 	}
@@ -326,7 +320,9 @@ export class AsteriskAmiAdapter extends EventEmitter {
 
 	sendAction(data: Types.TAmiMessageIn & Types.TAmiMessageToSocket, callback: Types.TCallBack) {
 		if (!this.#isReady) {
-			return this.#logger.warn("Connection is not established");
+			this.#debug("Connection is not established", "ERROR");
+
+			return;
 		}
 
 		return this.#send(data, callback);

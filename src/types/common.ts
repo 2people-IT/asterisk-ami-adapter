@@ -22,10 +22,10 @@ export type TAmiMessageIn = {
 	Action: string;
 	ActionID?: string;
 	Async?: string;
-	Events?: string;
 	Channel?: string;
 	Context?: string;
 	Exten?: string;
+	Events?: string;
 	Priority?: string;
 	Secret?: string;
 	Username?: string;
@@ -40,19 +40,26 @@ export type TAmiMessageToSocket = {
 	[key: string]: string | string[];
 };
 
+export type TAsteriskOptions = {
+	encoding: BufferEncoding;
+	events: boolean;
+	callBackTTL?: number;
+	host: string;
+	password: string;
+	port: number;
+	reconnect: boolean;
+	reconnectDelay: number;
+	username: string;
+};
+
 export type TCallBack =
 	& ((error: Error, data: null) => void)
 	& ((error: null, data: TCallBackData) => void);
 
 export type TCallBackData = TAmiEvent & TAmiMessageOut;
 
-export type TOptions = {
-	encoding: BufferEncoding;
-	debug: boolean;
-	writeToFile: boolean;
-	reconnect: boolean;
-	reconnectDelay: number;
-	identifier?: string;
-	logger?: Console;
-	events: boolean;
+export type TDebugOptions = {
+	filePath?: string;
+	isDebugEnabled: boolean;
+	isWriteToFileEnabled: boolean;
 };

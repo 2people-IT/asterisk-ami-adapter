@@ -6,43 +6,45 @@ import { AsteriskAmiAdapter, Types } from "..";
 
 const config = {
 	AMI_HOST: process.env.AMI_HOST || "localhost",
-	AMI_INDENTIFIER: process.env.AMI_INDENTIFIER || "test",
 	AMI_PASSWORD: process.env.AMI_PASSWORD || "password",
 	AMI_PORT: process.env.AMI_PORT || "5038",
 	AMI_USER: process.env.AMI_USER || "username",
 };
 
-const asteriskAmiConnector = new AsteriskAmiAdapter({
-	host: config.AMI_HOST,
-	password: config.AMI_PASSWORD,
-	port: Number(config.AMI_PORT),
-	username: config.AMI_USER,
-}, {
-	debug: false,
-	encoding: "ascii",
-	events: true,
-	identifier: config.AMI_INDENTIFIER,
-	reconnect: true,
-	reconnectDelay: 5000,
-	writeToFile: false,
-});
+const asteriskAmiConnector = new AsteriskAmiAdapter(
+	{
+		encoding: "ascii",
+		events: true,
+		host: config.AMI_HOST,
+		password: config.AMI_PASSWORD,
+		port: Number(config.AMI_PORT),
+		reconnect: true,
+		reconnectDelay: 5000,
+		username: config.AMI_USER,
+	},
+	{
+		filePath: "temp.log",
+		isDebugEnabled: true,
+		isWriteToFileEnabled: true,
+	},
+);
 
 asteriskAmiConnector.connect();
 
 asteriskAmiConnector.on("ami_login", (data: Types.TAmiEvent) => {
-	console.log("ami_login", data);
+	console.log("ami_login =>", JSON.stringify(data));
 
 	asteriskAmiConnector.sendAction({
-		Action: "TEST",
+		Action: "STATUS",
 	}, (error, data) => {
-		if (error) return console.log(error);
+		if (error) return console.error(error.message);
 
-		console.log(data);
+		console.log("Action: 'STATUS' data =>", JSON.stringify(data));
 	});
 });
 
 asteriskAmiConnector.on("ami_data", (data: Types.TAmiEvent) => {
-	console.log(data);
+	console.log("ami_data =>", JSON.stringify(data));
 });
 
 asteriskAmiConnector.on("ami_socket_drain", () => {
@@ -50,7 +52,7 @@ asteriskAmiConnector.on("ami_socket_drain", () => {
 });
 
 asteriskAmiConnector.on("ami_socket_error", (error: Error) => {
-	console.log("ami_socket_error", error);
+	console.log("ami_socket_error", error.message);
 });
 
 asteriskAmiConnector.on("ami_socket_timeout", () => {
@@ -70,6 +72,6 @@ asteriskAmiConnector.on("ami_socket_unwritable", () => {
 });
 
 (async function disconnect() {
-	await setTimeoutPromise(60000);
+	await setTimeoutPromise(60 * 60 * 1000);
 	asteriskAmiConnector.disconnect();
 })();
