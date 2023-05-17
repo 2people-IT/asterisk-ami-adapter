@@ -18,7 +18,8 @@
     "build": "tsc",
     "doc": "typedoc src/index.ts",
     "lint": "eslint . --ext .ts",
-    "test": "npm run build && node ./build/test/index.js"
+    "test": "npm run build && node ./build/test/index.js",
+    "example": "npm run build && node ./build/example/login-and-listen.js"
   },
   "repository": {
     "type": "git",
@@ -41,17 +42,17 @@
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^8.0.7",
-    "@semantic-release/npm": "^10.0.2",
-    "@semantic-release/release-notes-generator": "^10.0.3",
-    "@types/node": "^18.15.10",
-    "@typescript-eslint/eslint-plugin": "^5.56.0",
-    "@typescript-eslint/parser": "^5.56.0",
-    "eslint": "^8.36.0",
+    "@semantic-release/npm": "^10.0.3",
+    "@semantic-release/release-notes-generator": "^11.0.1",
+    "@types/node": "^20.1.7",
+    "@typescript-eslint/eslint-plugin": "^5.59.6",
+    "@typescript-eslint/parser": "^5.59.6",
+    "eslint": "^8.40.0",
     "eslint-plugin-sort-destructure-keys": "^1.5.0",
     "eslint-plugin-sort-exports": "^0.8.0",
-    "semantic-release": "^21.0.0",
-    "typedoc": "^0.23.28",
-    "typescript": "^5.0.2"
+    "semantic-release": "^21.0.2",
+    "typedoc": "^0.24.7",
+    "typescript": "^5.0.4"
   },
   "engines": {
     "node": ">= 16"
