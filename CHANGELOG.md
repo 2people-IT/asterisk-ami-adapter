@@ -1,3 +1,17 @@
+# [2.1.0](https://github.com/2people-IT/asterisk-ami-adapter/compare/v2.0.2...v2.1.0) (2024-06-21)
+
+
+### Bug Fixes
+
+* rename .releacerc ([18ad92d](https://github.com/2people-IT/asterisk-ami-adapter/commit/18ad92dec4fee592468d6f6ae7afe2b246a7f977))
+* update dev-deps to actual ([79b2879](https://github.com/2people-IT/asterisk-ami-adapter/commit/79b287936095b9f56e8fbf353679f17cb84d3274))
+* updated gh workflows to latest versions ([d6f57b4](https://github.com/2people-IT/asterisk-ami-adapter/commit/d6f57b4ff4b2d48823718f330c8e3fc44ba850ae))
+
+
+### Features
+
+* updated to type: module at package.json ([ee23f4e](https://github.com/2people-IT/asterisk-ami-adapter/commit/ee23f4ee36570d386e8e502e7db3a8d26dca648c))
+
 ## [2.0.2](https://github.com/2people-IT/asterisk-ami-adapter/compare/v2.0.1...v2.0.2) (2023-11-06)
 
 
