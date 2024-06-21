@@ -4,7 +4,7 @@ import fs from "node:fs";
 import net from "node:net";
 import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 
-import * as Types from "../types";
+import * as Types from "../types/index.js";
 
 export class AsteriskAmiAdapter extends EventEmitter {
 	#NEW_LINE = "\r\n";
@@ -74,11 +74,12 @@ export class AsteriskAmiAdapter extends EventEmitter {
 			}
 		}
 
-		const logMethods: { [k: string]: "error" | "log" | "warn"; } = {
+		const logMethods = {
+
 			ERROR: "error",
 			INFO: "log",
 			WARN: "warn",
-		};
+		} as const;
 
 		const method = logMethods[level];
 
@@ -118,7 +119,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 		return str + this.#NEW_LINE;
 	}
 
-	#getFormatedUuid = crypto.randomUUID;
+	#getFormattedUuid = crypto.randomUUID;
 
 	#processData(data: string) {
 		if (data.substring(0, 21) === "Asterisk Call Manager") {
@@ -148,18 +149,13 @@ export class AsteriskAmiAdapter extends EventEmitter {
 			const event: Types.TAmiEvent = preparedEvents.reduce((p: Types.TAmiMessageOut, c: string) => {
 				const [key, value]: string[] = c.split(": ", 2);
 
-				if (!key) return p;
+				if (!key || !value) return p;
 
 				if (key === "Variable") {
-					if (!p.Variable) {
-						p.Variable = {};
-					}
+					const [k, v] = value.split("=");
 
-					if (value) {
-						const [k, v] = value.split("=");
-
-						p.Variable[k] = v;
-					}
+					if (!p.Variable) p.Variable = {};
+					if (k && v) p.Variable[k] = v;
 				} else {
 					p[key] = value;
 				}
@@ -174,7 +170,7 @@ export class AsteriskAmiAdapter extends EventEmitter {
 	}
 
 	#send(data: Types.TAmiMessageIn & Types.TAmiMessageToSocket, callback?: Types.TCallBack) {
-		if (!data.ActionID) data.ActionID = this.#getFormatedUuid();
+		if (!data.ActionID) data.ActionID = this.#getFormattedUuid();
 
 		const actionID = data.ActionID;
 

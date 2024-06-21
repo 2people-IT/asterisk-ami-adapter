@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import test from "node:test";
 
-import { AsteriskAmiAdapter } from "../..";
+import { AsteriskAmiAdapter } from "../../index.js";
 
 const amiAdapter = new AsteriskAmiAdapter({
 	encoding: "ascii",

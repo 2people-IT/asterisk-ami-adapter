@@ -2,7 +2,7 @@
 
 import { setTimeout as setTimeoutPromise } from "node:timers/promises";
 
-import { AsteriskAmiAdapter, Types } from "..";
+import { AsteriskAmiAdapter, Types } from "../index.js";
 
 const config = {
 	AMI_HOST: process.env.AMI_HOST || "localhost",

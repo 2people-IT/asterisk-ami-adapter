@@ -1,2 +1,2 @@
-export * as Types from "./types";
-export { AsteriskAmiAdapter } from "./lib/asterisk-ami-adapter";
+export * as Types from "./types/index.js";
+export { AsteriskAmiAdapter } from "./lib/index.js";
